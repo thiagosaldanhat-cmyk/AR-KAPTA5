@@ -1,0 +1,17 @@
+<!doctype html><html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#071a32"><title>KAPTA AR</title>
+<link rel="stylesheet" href="styles.css">
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script></head><body>
+<header class="topbar"><div class="brand"><span class="logo">K</span><div><strong>KAPTA AR</strong><small>Visualização 3D em escala real</small></div></div></header>
+<main class="container">
+<section class="hero"><span class="eyebrow">CONFIGURADOR DE MODELOS</span><h1>Encontre a configuração</h1><p>Selecione as características da solução para localizar o modelo correspondente.</p></section>
+<section class="configurator">
+<div class="field"><label for="modelGroup">Modelo de visualização</label><select id="modelGroup"><option value="">Selecione</option><option value="sem-esteiras">Sem esteiras</option><option value="esteira-90">Esteiras 90º</option><option value="esteira-reta">Esteira reta</option></select></div>
+<div class="field" id="sideField" hidden><label id="sideLabel" for="side">Lado da entrada</label><select id="side"><option value="">Selecione</option><option value="direita">Direita</option><option value="esquerda">Esquerda</option></select></div>
+<div class="field" id="typeField" hidden><label for="type">Tipo de esteira</label><select id="type"><option value="">Selecione</option><option value="padrao">Sem esteira adicional</option><option value="convertedora">Esteira convertedora</option><option value="viradora">Esteira viradora</option></select></div>
+<div class="field" id="fenceField" hidden><label for="fence">Gradil</label><select id="fence"><option value="">Selecione</option><option value="sem">Sem gradil</option><option value="com">Com gradil</option></select></div>
+<button id="clearFilters" class="clear-button" type="button">Limpar seleção</button>
+</section>
+<section><div class="result-header"><div><span class="eyebrow">RESULTADO</span><h2 id="resultTitle">Selecione uma categoria</h2></div><span id="resultCount" class="result-count"></span></div><div id="catalog" class="catalog"></div></section>
+</main><footer>© KAPTA Soluções Industriais</footer><script src="catalogo.js"></script></body></html>

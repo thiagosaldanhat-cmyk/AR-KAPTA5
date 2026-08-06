@@ -1,15 +1,15 @@
-SUBSTITUA SOMENTE ESTES ARQUIVOS NO GITHUB
+SUBSTITUA NO GITHUB
 
 - index.html
 - catalogo.js
 - styles.css
 - modelos.json
 
-ALTERAÇÕES
-- Adicionada a opção Todos no primeiro campo.
-- Todos mostra todas as opções sem abrir filtros adicionais.
-- Sem esteiras não abre filtros adicionais.
-- Esteiras 90º: lado da entrada, tipo de esteira e gradil.
-- Esteira reta: somente tipo de esteira e gradil.
-- Para convertedora reta, aparecem juntos os modelos direito e esquerdo.
-- As miniaturas continuam usando o próprio GLB.
+CORREÇÕES
+- Adicionado [hidden]{display:none!important}, garantindo que os campos realmente sumam.
+- Sem esteiras não mostra filtros adicionais.
+- Esteira reta mostra somente tipo de esteira e gradil.
+- Esteira 90º mostra lado, depois tipo, depois gradil.
+- Todos mostra todos os modelos sem filtros.
+- Removidas as miniaturas 3D do catálogo.
+- Cards usam ilustrações leves em CSS, sem carregar GLBs.

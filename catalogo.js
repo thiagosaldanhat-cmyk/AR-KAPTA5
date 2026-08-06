@@ -4,15 +4,15 @@ const group = document.querySelector('#modelGroup');
 const side = document.querySelector('#side');
 const type = document.querySelector('#type');
 const fence = document.querySelector('#fence');
-
 const sideField = document.querySelector('#sideField');
 const typeField = document.querySelector('#typeField');
 const fenceField = document.querySelector('#fenceField');
-
 const catalog = document.querySelector('#catalog');
 const title = document.querySelector('#resultTitle');
 const count = document.querySelector('#resultCount');
 const clear = document.querySelector('#clearFilters');
+
+let previewObserver;
 
 function hideAllDependentFields() {
   sideField.hidden = true;
@@ -31,53 +31,32 @@ function updateVisibleFields() {
 
   if (group.value === 'esteira-90') {
     sideField.hidden = false;
-
-    if (side.value) {
-      typeField.hidden = false;
-    }
-
-    if (side.value && type.value) {
-      fenceField.hidden = false;
-    }
+    if (side.value) typeField.hidden = false;
+    if (side.value && type.value) fenceField.hidden = false;
   }
 
   if (group.value === 'esteira-reta') {
     typeField.hidden = false;
-
-    if (type.value) {
-      fenceField.hidden = false;
-    }
+    if (type.value) fenceField.hidden = false;
   }
 
   render();
 }
 
 function modelMatches(model) {
-  if (group.value === 'todos') {
-    return true;
-  }
-
-  if (model.group !== group.value) {
-    return false;
-  }
-
-  if (group.value === 'sem-esteiras') {
-    return true;
-  }
+  if (group.value === 'todos') return true;
+  if (model.group !== group.value) return false;
+  if (group.value === 'sem-esteiras') return true;
 
   if (group.value === 'esteira-90') {
-    return (
-      model.side === side.value &&
-      model.type === type.value &&
-      model.fence === fence.value
-    );
+    return model.side === side.value &&
+           model.type === type.value &&
+           model.fence === fence.value;
   }
 
   if (group.value === 'esteira-reta') {
-    return (
-      model.type === type.value &&
-      model.fence === fence.value
-    );
+    return model.type === type.value &&
+           model.fence === fence.value;
   }
 
   return false;
@@ -91,22 +70,26 @@ function groupLabel(value) {
   }[value] || value;
 }
 
-function illustrationClass(model) {
-  if (model.group === 'sem-esteiras') return 'illustration base-only';
-  if (model.group === 'esteira-90') return `illustration conveyor-90 ${model.side || ''}`;
-  return 'illustration conveyor-straight';
+function previewMarkup(model) {
+  if (!model.available) {
+    return '<div class="preview-placeholder"><span>3D</span></div>';
+  }
+
+  return `<div class="lazy-model"
+      data-src="modelos/${model.file}"
+      data-label="${model.name.replaceAll('"', '&quot;')}">
+      <div class="preview-loading">
+        <span class="preview-spinner"></span>
+        <small>Carregando prévia</small>
+      </div>
+    </div>`;
 }
 
 function modelCard(model) {
   return `<article class="card ${model.available ? '' : 'unavailable'}">
     <div class="visual">
       <span class="number">${model.number}</span>
-      <div class="${illustrationClass(model)}">
-        <span class="base-shape"></span>
-        <span class="robot-shape"></span>
-        <span class="conveyor-shape"></span>
-        ${model.fence === 'com' ? '<span class="fence-shape"></span>' : ''}
-      </div>
+      ${previewMarkup(model)}
       ${model.available ? '' : '<span class="coming-soon">Em breve</span>'}
     </div>
     <div class="body">
@@ -117,6 +100,43 @@ function modelCard(model) {
         : '<button class="disabled-button" disabled>Modelo ainda não disponível</button>'}
     </div>
   </article>`;
+}
+
+function setupLazyPreviews() {
+  if (previewObserver) previewObserver.disconnect();
+
+  previewObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+
+      const holder = entry.target;
+      const src = holder.dataset.src;
+      const label = holder.dataset.label;
+
+      const viewer = document.createElement('model-viewer');
+      viewer.className = 'card-model';
+      viewer.setAttribute('src', src);
+      viewer.setAttribute('alt', label);
+      viewer.setAttribute('camera-controls', '');
+      viewer.setAttribute('auto-rotate', '');
+      viewer.setAttribute('rotation-per-second', '8deg');
+      viewer.setAttribute('interaction-prompt', 'none');
+      viewer.setAttribute('shadow-intensity', '.8');
+      viewer.setAttribute('loading', 'lazy');
+      viewer.setAttribute('disable-zoom', '');
+      viewer.addEventListener('load', () => holder.classList.add('loaded'));
+
+      holder.appendChild(viewer);
+      previewObserver.unobserve(holder);
+    });
+  }, {
+    rootMargin: '180px 0px',
+    threshold: 0.01
+  });
+
+  document.querySelectorAll('.lazy-model').forEach(element => {
+    previewObserver.observe(element);
+  });
 }
 
 function render() {
@@ -144,20 +164,15 @@ function render() {
 
   const filteredModels = models.filter(modelMatches);
 
-  if (group.value === 'todos') {
-    title.textContent = 'Todos os modelos';
-  } else if (group.value === 'sem-esteiras') {
-    title.textContent = 'Modelos sem esteira';
-  } else {
-    title.textContent = filteredModels.length === 1
-      ? 'Modelo encontrado'
-      : 'Modelos encontrados';
-  }
+  if (group.value === 'todos') title.textContent = 'Todos os modelos';
+  else if (group.value === 'sem-esteiras') title.textContent = 'Modelos sem esteira';
+  else title.textContent = filteredModels.length === 1 ? 'Modelo encontrado' : 'Modelos encontrados';
 
   count.textContent =
     `${filteredModels.length} ${filteredModels.length === 1 ? 'modelo' : 'modelos'}`;
 
   catalog.innerHTML = filteredModels.map(modelCard).join('');
+  setupLazyPreviews();
 }
 
 group.addEventListener('change', () => {
@@ -189,4 +204,7 @@ fetch('modelos.json')
   .then(data => {
     models = data;
     updateVisibleFields();
+  })
+  .catch(() => {
+    catalog.innerHTML = '<div class="empty-state">Não foi possível carregar o catálogo.</div>';
   });

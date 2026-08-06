@@ -1,15 +1,15 @@
-SUBSTITUA NO GITHUB
+SUBSTITUA ESTES ARQUIVOS NO GITHUB
 
 - index.html
 - catalogo.js
 - styles.css
 - modelos.json
+- visualizador.html
+- visualizador.js
 
-CORREÇÕES
-- Adicionado [hidden]{display:none!important}, garantindo que os campos realmente sumam.
-- Sem esteiras não mostra filtros adicionais.
-- Esteira reta mostra somente tipo de esteira e gradil.
-- Esteira 90º mostra lado, depois tipo, depois gradil.
-- Todos mostra todos os modelos sem filtros.
-- Removidas as miniaturas 3D do catálogo.
-- Cards usam ilustrações leves em CSS, sem carregar GLBs.
+ALTERAÇÕES
+- Miniaturas 3D restauradas.
+- GLBs das miniaturas carregam somente quando o card entra na tela.
+- Visualizador principal corrigido e totalmente estilizado.
+- Área 3D, carregamento, botão AR e botão Trocar modelo restaurados.
+- Filtros permanecem com a lógica atual.

@@ -1,0 +1,1 @@
+KAPTA AR — configurador por seleção. Modelos 22, 23 e 24 aparecem como Em breve até os GLBs serem adicionados.

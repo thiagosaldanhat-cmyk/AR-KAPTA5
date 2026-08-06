@@ -1,0 +1,11 @@
+<!doctype html><html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#071a32"><title>KAPTA AR — Visualizador</title>
+<link rel="stylesheet" href="styles.css">
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+</head><body>
+<header class="topbar"><a class="back" href="index.html">← Voltar</a><div class="brand compact"><span class="logo">K</span><strong>KAPTA AR</strong></div></header>
+<main class="viewer-container"><div class="viewer-title"><span id="category" class="eyebrow"></span><h1 id="name">Carregando...</h1><p>Gire o modelo com o dedo. Para conferir no local, use o botão abaixo.</p></div>
+<div class="viewer-card"><model-viewer id="model" camera-controls auto-rotate shadow-intensity="1" exposure="1" ar ar-placement="floor" ar-scale="fixed" ar-modes="webxr scene-viewer quick-look">
+<button slot="ar-button" class="ar-button">Ver no meu ambiente</button><div slot="progress-bar" class="progress"><div class="progress-fill"></div></div></model-viewer></div>
+<a class="secondary" href="index.html">Trocar modelo</a></main><script src="visualizador.js"></script></body></html>

@@ -1,5 +1,5 @@
 const params = new URLSearchParams(window.location.search);
-const requestedId = params.get('modelo') || '01-base-3d';
+const requestedId = params.get('modelo');
 
 const viewer = document.querySelector('#model');
 const title = document.querySelector('#name');
@@ -16,9 +16,14 @@ function groupLabel(value) {
 }
 
 fetch('modelos.json')
-  .then(response => response.json())
+  .then(response => {
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  })
   .then(models => {
-    const model = models.find(item => item.id === requestedId) || models.find(item => item.available);
+    if (!Array.isArray(models)) throw new Error('Catálogo inválido');
+    // Um link incorreto nunca deve abrir silenciosamente outro equipamento.
+    const model = requestedId ? models.find(item => item.id === requestedId) : null;
 
     if (!model || !model.available) {
       throw new Error('Modelo não disponível');
@@ -34,6 +39,7 @@ fetch('modelos.json')
     title.textContent = 'Modelo indisponível';
     category.textContent = 'KAPTA AR';
     viewer.classList.add('has-error');
+    progress.classList.add('complete');
   });
 
 viewer.addEventListener('progress', event => {
@@ -47,4 +53,9 @@ viewer.addEventListener('progress', event => {
 
 viewer.addEventListener('load', () => {
   progress.classList.add('complete');
+});
+viewer.addEventListener('error', () => {
+  title.textContent = 'Não foi possível carregar o modelo';
+  progress.classList.add('complete');
+  viewer.classList.add('has-error');
 });

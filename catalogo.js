@@ -33,11 +33,16 @@ function updateVisibleFields() {
     sideField.hidden = false;
     if (side.value) typeField.hidden = false;
     if (side.value && type.value) fenceField.hidden = false;
-  }
-
-  if (group.value === 'esteira-reta') {
+  } else if (group.value === 'esteira-reta') {
     typeField.hidden = false;
-    if (type.value) fenceField.hidden = false;
+    // Apenas a esteira reta com convertedora possui opções direita/esquerda.
+    // Nas demais configurações, o lado não faz parte do cadastro.
+    if (type.value === 'convertedora') {
+      sideField.hidden = false;
+      if (side.value) fenceField.hidden = false;
+    } else if (type.value) {
+      fenceField.hidden = false;
+    }
   }
 
   render();
@@ -56,7 +61,8 @@ function modelMatches(model) {
 
   if (group.value === 'esteira-reta') {
     return model.type === type.value &&
-           model.fence === fence.value;
+           model.fence === fence.value &&
+           (type.value !== 'convertedora' || model.side === side.value);
   }
 
   return false;
@@ -125,6 +131,15 @@ function setupLazyPreviews() {
       viewer.setAttribute('loading', 'lazy');
       viewer.setAttribute('disable-zoom', '');
       viewer.addEventListener('load', () => holder.classList.add('loaded'));
+      viewer.addEventListener('error', () => {
+        // A falha em uma miniatura não deve impedir a navegação para o modelo.
+        holder.classList.add('loaded');
+        viewer.remove();
+        const fallback = document.createElement('div');
+        fallback.className = 'preview-placeholder';
+        fallback.textContent = 'Prévia indisponível';
+        holder.appendChild(fallback);
+      });
 
       holder.appendChild(viewer);
       previewObserver.unobserve(holder);
@@ -153,7 +168,7 @@ function render() {
 
   const incompleteStraight =
     group.value === 'esteira-reta' &&
-    (!type.value || !fence.value);
+    (!type.value || (type.value === 'convertedora' && !side.value) || !fence.value);
 
   if (incomplete90 || incompleteStraight) {
     title.textContent = 'Complete as opções';
@@ -181,12 +196,13 @@ group.addEventListener('change', () => {
 });
 
 side.addEventListener('change', () => {
-  type.value = '';
+  if (group.value === 'esteira-90') type.value = '';
   fence.value = '';
   updateVisibleFields();
 });
 
 type.addEventListener('change', () => {
+  if (group.value === 'esteira-reta') side.value = '';
   fence.value = '';
   updateVisibleFields();
 });
@@ -200,8 +216,12 @@ clear.addEventListener('click', () => {
 });
 
 fetch('modelos.json')
-  .then(response => response.json())
+  .then(response => {
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  })
   .then(data => {
+    if (!Array.isArray(data)) throw new Error('Catálogo inválido');
     models = data;
     updateVisibleFields();
   })
